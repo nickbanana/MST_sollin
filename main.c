@@ -153,7 +153,7 @@ void output()
 {
     int i,j,print_count;
     print_count=0;
-    for(i=0;i<Max_Size;i++)
+    /*for(i=0;i<Max_Size;i++)
     {
         printf("%d ",group[i]);
 
@@ -163,7 +163,7 @@ void output()
     {
         printf("%d ",cost[i]);
     }
-    printf("%d\n", minimal_branch_count);
+    printf("%d\n", minimal_branch_count);*/
     printf("Minimum cost of Spanning Tree edges in ascending order:\n");
     while(print_count<minimal_branch_count)
     {
