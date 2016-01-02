@@ -8,7 +8,7 @@ int group[99];
 int branch[99][99];
 int cost[99];
 int minimal_branch_count;
-
+int minimal_db=0;
 void reset_adj();
 void read_file();
 void output();
@@ -86,27 +86,33 @@ void cal()
     sub_group=group_num;
     group_num=1;
     min_connect=999;
-    for(group_num=1;group_num<=sub_group;group_num++)
-    {
-        for(index=0;index<Max_Size;index++)
+        for(group_num=1;group_num<=sub_group;group_num++)
         {
-            if(group[index]!=group_num)
-                continue;
-            for(j=0;j<Max_Size;j++)
+            for(index=0;index<Max_Size;index++)
             {
-                if(adj[j][index]>0&&adj[j][index]<min_connect&&group[j]!=group[index])
+                if(group[index]!=group_num)
+                    continue;
+                for(j=0;j<Max_Size;j++)
                 {
-                    min_connect=adj[j][index];
-                    min_connect_target=j;
-                    min_connect_source=index;
+                    if(adj[j][index]>0&&adj[j][index]<min_connect&&group[j]!=group[index])
+                    {
+                        min_connect=adj[j][index];
+                        min_connect_target=j;
+                        min_connect_source=index;
+                    }
                 }
             }
+            //求 聯外minimum edge
+            if(branch[min_connect_target][min_connect_source]==0)
+            {
+                branch[min_connect_target][min_connect_source]=1;
+                branch[min_connect_source][min_connect_target]=1;
+                minimal_db++;
+                minimal_branch_count++;
+            }
+
+            //連起來
         }
-        //求 聯外minimum edge
-        branch[min_connect_target][min_connect_source]=1;
-        branch[min_connect_source][min_connect_target]=1;
-        //連起來
-    }
 
 
 }
@@ -124,8 +130,13 @@ int minimum(int start)
             min_val_index=i;
         }
     }
-    branch[min_val_index][start]=1;
-    branch[start][min_val_index]=1;
+    if(branch[min_val_index][start]==0)
+    {
+        branch[min_val_index][start]=1;
+        branch[start][min_val_index]=1;
+        //minimal_db++;
+        minimal_branch_count++;
+    }
     return min_val_index;
 }
 
@@ -133,7 +144,18 @@ void output()
 {
     int i,j,print_count;
     print_count=0;
-    printf("Minimum cost of Spanning Tree edges in ascending order:\n", );
+    for(i=0;i<Max_Size;i++)
+    {
+        printf("%d ",group[i]);
+
+    }
+    printf("\n");
+    for(i=0;i<20;i++)
+    {
+        printf("%d ",cost[i]);
+    }
+    printf("%d\n", minimal_db);
+    printf("Minimum cost of Spanning Tree edges in ascending order:\n");
     while(print_count<minimal_branch_count)
     {
         for(i=0;i<Max_Size;i++)
@@ -152,21 +174,22 @@ void output()
 
 void sort()
 {
-    int i,j,k,l,swap;
+    int i,j,k,l,swap,cost_index;
+    cost_index=0;
     for(i=0;i<Max_Size;i++)
     {
         for(j=i;j<Max_Size;j++)
         {
             if(branch[i][j]==1)
             {
-                cost[minimal_branch_count]=adj[i][j];
-                minimal_branch_count++;
+                cost[cost_index]=adj[i][j];
+                cost_index++;
             }
         }
     }
-    for(k=0;k<(minimal_branch_count-1);k++)
+    for(k=0;k<(cost_index-1);k++)
     {
-      for(l=0;l<minimal_branch_count-k-1;l++)
+      for(l=0;l<cost_index-k-1;l++)
       {
         if (cost[l] > cost[l+1])
         {
