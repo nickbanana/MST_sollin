@@ -7,6 +7,7 @@ int Max_Size;
 int group[99];
 int branch[99][99];
 int cost[99];
+int group_connect[99][99];
 int minimal_branch_count;
 int minimal_db=0;
 void reset_adj();
@@ -37,6 +38,7 @@ void reset_adj()
             adj[i][j]=0;
             branch[i][j]=0;
             group[j]=0;
+            group_connect[i][j]=0;
             cost[j]=0;
         }
     }
@@ -66,6 +68,7 @@ void read_file()
 void cal()
 {
     int index,min_connect,group_num,j,sub_group,min_connect_target,min_connect_source;
+    int source_group,target_group;
     group_num=1;
     for(index=0;index<Max_Size;index++)
     {
@@ -84,17 +87,21 @@ void cal()
         }
     }
     sub_group=group_num;
+
     group_num=1;
-    min_connect=999;
+
         for(group_num=1;group_num<=sub_group;group_num++)
         {
+            source_group=1;
+            target_group=1;
+            min_connect=999;
             for(index=0;index<Max_Size;index++)
             {
                 if(group[index]!=group_num)
                     continue;
                 for(j=0;j<Max_Size;j++)
                 {
-                    if(adj[j][index]>0&&adj[j][index]<min_connect&&group[j]!=group[index])
+                    if(adj[j][index]>0&&adj[j][index]<min_connect&&group[j]!=group[index]&&group_connect[group[j]][group[index]]!=1)
                     {
                         min_connect=adj[j][index];
                         min_connect_target=j;
@@ -107,7 +114,9 @@ void cal()
             {
                 branch[min_connect_target][min_connect_source]=1;
                 branch[min_connect_source][min_connect_target]=1;
-                minimal_db++;
+                //minimal_db++;
+                group_connect[group[min_connect_source]][group[min_connect_target]]=1;
+                group_connect[group[min_connect_target]][group[min_connect_source]]=1;
                 minimal_branch_count++;
             }
 
@@ -154,7 +163,7 @@ void output()
     {
         printf("%d ",cost[i]);
     }
-    printf("%d\n", minimal_db);
+    printf("%d\n", minimal_branch_count);
     printf("Minimum cost of Spanning Tree edges in ascending order:\n");
     while(print_count<minimal_branch_count)
     {
